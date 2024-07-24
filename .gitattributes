@@ -1,0 +1,6 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+/artifacts-zk
+/cache-zk
+/deployment-zk
+/deploy/addSong.ts
