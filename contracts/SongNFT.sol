@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract SongNFT is ERC721URIStorage, Ownable {
+    // SafeMath applies SafeMath library functions to the uint256 data type for safe arithmetic operations.
 	using SafeMath for uint256;
 
     // Tracks the current token ID
@@ -24,6 +25,7 @@ contract SongNFT is ERC721URIStorage, Ownable {
     // URI of the cover image
     string public coverURI;
 
+    // Defining the struct NFTInfo to store comprehensive information about the NFT.
     struct NFTInfo {
         uint256 nftPrice;
         address artist;
@@ -33,6 +35,7 @@ contract SongNFT is ERC721URIStorage, Ownable {
         uint256 currentTokenId;
     } 
 
+    // Declaring a constant representing the royalty percentage (30%) on NFT minting.
     uint256 public constant ROYALTY_PERCENTAGE = 30; // 30% royalty on NFT minting 
 
     // Triggered when a new NFT is minted
@@ -42,11 +45,14 @@ contract SongNFT is ERC721URIStorage, Ownable {
     // Triggered when royalties are paid out to the artist
     event RoyaltyPaid(address indexed artist, uint256 amount);
 
+    // The modifier onlyMintedUser restricts function access to users who own at least one NFT.
     modifier onlyMintedUser(address user) {
         require(balanceOf(user) > 0, "Don't own the NFT");
         _;
     }
 
+    // The constructor initializes the contract with NFT name, symbol, price, audio URI, artist address, and cover URI. 
+    // Where ERC721(_name, _symbol) calls the constructor of the ERC721 contract.
     constructor(string memory _name, string memory _symbol, uint256 _nftPrice, string memory _audioURI, address _artist, string memory _coverURI) ERC721(_name, _symbol) {
         nftPrice = _nftPrice;
         audioURI = _audioURI;
@@ -55,50 +61,54 @@ contract SongNFT is ERC721URIStorage, Ownable {
         _currentTokenId = 0;
     }
 
+    // mintNFT function mints a new NFT.
     function mintNFT(address _to) external payable returns (uint256) {
-		    // Ensures the payment is sufficient.
+		// Ensures the payment is sufficient.
         require(msg.value >= nftPrice, "Insufficient payment");
 
-				// Increments the token ID
+		// Increments the token ID
         _currentTokenId++;
         uint256 newTokenId = _currentTokenId;
 
-				// Calculates the royalty amount
+		// Calculates the royalty amount
         uint256 royaltyAmount = msg.value.mul(ROYALTY_PERCENTAGE).div(100);
         // Updates the royalty balance
         royaltyBalance = royaltyBalance.add(royaltyAmount);
 
-				// // Safely mints the new token
+		// Safely mints the new token
         _safeMint(_to, newTokenId);
         // Sets the token URI
         _setTokenURI(newTokenId, audioURI);
 
-				// Emits an event for NFT minting
+		// Emits an event for NFT minting
         emit NFTMinted(newTokenId, _to, msg.value);
         // Emits an event for royalty collection
         emit RoyaltyCollected(newTokenId, royaltyAmount);
 
-				//  Returns the new token ID
+		//  Returns the new token ID
         return newTokenId;
     }
 
+    // payRoyalties function pays out the accumulated royalties to the artist.
     function payRoyalties() external {
-			  // Retrieves the royalty balance
+		// Retrieves the royalty balance
         uint256 amount = royaltyBalance;
         // Resets the royalty balance
         royaltyBalance = 0;
 
-				// Transfers the royalty amount to the artist
+		// Transfers the royalty amount to the artist
         (bool success, ) = payable(artist).call{value: amount}("");
         // Ensures the transfer was successful
         require(success, "Royalty payout failed");
 
-				// Emits an event for royalty payment
+		// Emits an event for royalty payment
         emit RoyaltyPaid(artist, amount);
     }
 
+    // getInfo function retrieves comprehensive information about the NFT for a user who
+    // owns at least one NFT where onlyMintedUser(user) ensures the user owns an NFT.
     function getInfo(address user) external view onlyMintedUser(user) returns (NFTInfo memory)  {
-		    // Returns an NFTInfo struct with detailed information.
+		// Returns an NFTInfo struct with detailed information.
         return NFTInfo({
             nftPrice: nftPrice,
             artist: artist,
