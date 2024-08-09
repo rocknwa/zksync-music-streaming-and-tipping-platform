@@ -51,45 +51,48 @@ contract SongNFT is ERC721URIStorage, Ownable {
 		    // Ensures the payment is sufficient.
         require(msg.value >= nftPrice, "Insufficient payment");
 
-				// Increment the token ID and save it to newTokenId here
+		// Increment the token ID and save it to newTokenId here
+        // Your code goes here
 
-				// Calculate the royalty amount
+		// Calculate the royalty amount
         uint256 royaltyAmount = msg.value.mul(ROYALTY_PERCENTAGE).div(100);
         
         // Update the royalty balance
         royaltyBalance = royaltyBalance.add(royaltyAmount);
 
-				// Safely mints the new token
+		// Safely mints the new token
         _safeMint(_to, newTokenId);
         
         // Sets the token URI
         _setTokenURI(newTokenId, audioURI);
 
-				// Emit the suitable events here
+		// Emit the suitable events here
+        // Your code goes here
 
-				//  Returns the new token ID
+		//  Returns the new token ID
         return newTokenId;
     }
 
     function payRoyalties() external {
-			  // Retrieves the royalty balance
+		// Retrieves the royalty balance
         uint256 amount = royaltyBalance;
         // Resets the royalty balance
         royaltyBalance = 0;
 
-				// Transfers the royalty amount to the artist
+		// Transfers the royalty amount to the artist
         (bool success, ) = payable(artist).call{value: amount}("");
         // Ensures the transfer was successful
         require(success, "Royalty payout failed");
 
-				// Emits an event for royalty payment
+		// Emits an event for royalty payment
         emit RoyaltyPaid(artist, amount);
     }
 
     function getInfo(address user) external view onlyMintedUser(user) returns (NFTInfo memory)  {
-		    // Returns an NFTInfo struct with detailed information.
+		// Returns an NFTInfo struct with detailed information.
         return NFTInfo({
             // Initialize the NFTInfo fields here using state variables
+            // Your code goes here
         });
     }
 }
