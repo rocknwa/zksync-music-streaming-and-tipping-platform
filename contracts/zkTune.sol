@@ -114,33 +114,33 @@ contract zkTune is Ownable {
     }
 
     // Function to register a new user
-    // YOUR_CODE_GOES_HERE
     function registerUser(string memory _name, string memory _profileURI) external {
         // Check if the user is already registered
-        
+        require(bytes(users[msg.sender].name).length == 0, "User already registered");
         // Store user details in the users mapping
-        
-        // Increment total users
+        users[msg.sender] = User(_name, _profileURI);
+        totalUsers++; // Increment total users
 
         emit UserRegistered(msg.sender, _name); // Emit UserRegistered event
     }
 
     // Function to add a new song
+    // YOUR_CODE_GOES_HERE
     function addSong(string memory _title, string memory _audioURI, string memory _coverURI, uint256 _nftPrice) external onlyRegisteredArtist {
-        _currentSongId++; // Increment current song ID
-        uint256 newSongId = _currentSongId; // Assign new song ID
+        // Increment current song ID
+        // Assign new song ID
 
         // Deploy a new SongNFT contract
-        SongNFT songNFT = new SongNFT(_title, "ZKT", _nftPrice, _audioURI, msg.sender, _coverURI);
 
         // Store song details in the songs mapping
-        songs[newSongId] = Song(newSongId, msg.sender, _title, _audioURI, _coverURI, 0, address(songNFT));
-        songIds.push(newSongId); // Add song ID to the array
+        
+        // Add song ID to the array
 
-        artistSongs[msg.sender].push(newSongId); // Add song ID to the artist's songs
-        totalSongs++; // Increment total songs
+        // Add song ID to the artist's songs
+        
+        // Increment total songs
 
-        emit SongAdded(newSongId, msg.sender, _title); // Emit SongAdded event
+        // Emit SongAdded event
     }
 
     // Function to stream a song
@@ -169,14 +169,12 @@ contract zkTune is Ownable {
     }
 
     // Function to get all songs
-    // YOUR_CODE_GOES_HERE
     function getAllSongs() external view returns (Song[] memory) {
-        // Create an array of Song structs
-        // Add a loop to iterate the Song array
-        
-            // Populate the array with songs
-        
-       // Return the array
+        Song[] memory allSongs = new Song[](songIds.length); // Create an array of Song structs
+        for (uint256 i = 0; i < songIds.length; i++) {
+            allSongs[i] = songs[songIds[i]]; // Populate the array with songs
+        }
+        return allSongs; // Return the array
     }
 
     // Function to get all artists
