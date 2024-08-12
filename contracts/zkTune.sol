@@ -166,7 +166,6 @@ contract zkTune is Ownable {
             // Return the audio URI
             
         }
-    }
 
     // Function to get all songs
     function getAllSongs() external view returns (Song[] memory) {
