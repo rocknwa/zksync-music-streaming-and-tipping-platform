@@ -20,8 +20,8 @@ const zkSync: Chain = {
 const zkSyncSepoliaTestnet: Chain = {
   id: 300,
   name: "zkSync Sepolia Testnet",
-  rpcUrl: "https://rpc.ankr.com/eth_sepolia",
-  blockExplorerUrl: "https://sepolia.etherscan.io"
+  rpcUrl: "https://sepolia.era.zksync.dev",
+  blockExplorerUrl: "https://sepolia.explorer.zksync.io/"
 }
 const zkSyncGoerliTestnet: Chain = {
   id: 280,
