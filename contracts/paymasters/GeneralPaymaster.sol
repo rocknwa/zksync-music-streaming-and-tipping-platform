@@ -66,13 +66,35 @@ contract GeneralPaymaster is IPaymaster, Ownable {
         }
     }
 
+    // Parameters include context, transaction, two 32-byte values (unused), transaction result, and max refunded gas
     /// @notice Handles post-transaction actions
     /// @param _context Additional context data
     /// @param _transaction The transaction data
     /// @param _txResult The execution result of the transaction
-    /// @param _maxRefundedGas The maximum gas to be refunded
+    /// @param _maxRefundedGas The maximum gas to be refunded	
     function postTransaction(
-        bytes calldata _context,  // Additional context data
-        Transaction calldata _transaction,  // The transaction data
-        bytes32,  // Placeholder for a future parameter
-        bytes32,  // Placeholder for
+        bytes calldata _context,
+        Transaction calldata _transaction,
+        bytes32,
+        bytes32,
+        ExecutionResult _txResult,
+        uint256 _maxRefundedGas
+    // External function, payable, overrides a function from the inherited interface, restricted to bootloader 
+    // This is an empty function body (no additional logic needs to be implemented).   
+    ) external payable override onlyBootloader {}
+
+    // Withdraw funds, restricted to the contract owner
+    function withdraw(address payable _to) external onlyOwner {
+		// Get the contract's current balance
+        // HINT: address() can help you get the address of the contract
+        uint256 balance = address(this).balance;
+        
+        // Transfer the balance to the specified address
+        (bool success, ) = _to.call{value: balance}("");
+        
+        // Ensure the transfer was successful
+        require(success, "Failed to withdraw funds from paymaster."); 
+    }
+
+    receive() external payable {}
+}
