@@ -71,8 +71,7 @@ contract zkTune is Ownable {
     // Event emitted when a song is streamed
     event SongStreamed(uint256 indexed songId, address indexed listener);
 
-    // Constructor to initialize state variables
-    constructor() {
+    constructor() { // Constructor to initialize state variables
         _currentSongId = 0;  // Initialize current song ID to 0
         _currentArtistId = 0;// Initialize current artist ID to 0
         totalSongs = 0;      // Initialize total songs to 0
