@@ -43,7 +43,7 @@ contract SongNFT is ERC721URIStorage, Ownable {
 
     // Modifier to check if the user owns at least one NFT
     modifier onlyMintedUser(address user) {
-        require(balanceOf(user) > 0, "Don't own the NFT");
+        require(balanceOf(user) > 0, "Don't own the NFT"); // ASSIGNMENT #1
         _; // Continue execution
     }
 
@@ -56,6 +56,7 @@ contract SongNFT is ERC721URIStorage, Ownable {
         address _artist, 
         string memory _coverURI
     ) ERC721(_name, _symbol) {
+        // ASSIGNMENT #2
         nftPrice = _nftPrice;        // Set the NFT price
         audioURI = _audioURI;        // Set the audio URI
         coverURI = _coverURI;        // Set the cover URI
@@ -65,9 +66,11 @@ contract SongNFT is ERC721URIStorage, Ownable {
 
     // Function to mint a new NFT
     function mintNFT(address _to) external payable returns (uint256) {
-        require(msg.value >= nftPrice, "Insufficient payment"); // Ensure sufficient payment
+        // Ensures the payment is sufficient using the NFT price
+        require(msg.value >= nftPrice, "Insufficient payment"); // ASSIGNMENT #3
 
-        _currentTokenId++; // Increment current token ID
+        // Increment current token ID
+        _currentTokenId++; // ASSIGNMENT #4
         uint256 newTokenId = _currentTokenId; // Assign new token ID
 
         // Calculate and accumulate royalty
@@ -78,27 +81,36 @@ contract SongNFT is ERC721URIStorage, Ownable {
         _safeMint(_to, newTokenId);
         _setTokenURI(newTokenId, audioURI); // Set the token URI to the audio URI
 
-        emit NFTMinted(newTokenId, _to, msg.value); // Emit NFTMinted event
-        emit RoyaltyCollected(newTokenId, royaltyAmount); // Emit RoyaltyCollected event
+        
+        // Emits an event for royalty collection
+        emit RoyaltyCollected(newTokenId, royaltyAmount); // ASSIGNMENT #5
+        // Emits an event for NFT minting
+        emit NFTMinted(newTokenId, _to, msg.value); // ASSIGNMENT #6
 
-        return newTokenId; // Return the new token ID
+        // Return the new token ID
+        return newTokenId; // ASSIGNMENT #7
     }
 
     // Function to pay accumulated royalties to the artist
     function payRoyalties() external {
-        uint256 amount = royaltyBalance; // Get the royalty balance
-        royaltyBalance = 0; // Reset the royalty balance
+        // Get the royalty balance
+        uint256 amount = royaltyBalance; 
+        // Reset the royalty balance
+        royaltyBalance = 0; // ASSIGNMENT #8
 
         (bool success, ) = payable(artist).call{value: amount}(""); // Transfer the royalties to the artist
         require(success, "Royalty payout failed"); // Ensure the payout was successful
 
-        emit RoyaltyPaid(artist, amount); // Emit RoyaltyPaid event
+        // Emits an event for royalty payment
+        emit RoyaltyPaid(artist, amount); //  ASSIGNMENT #10
     }
 
     // Function to get NFT information for a specific user
     function getInfo(address user) external view onlyMintedUser(user) returns (NFTInfo memory) {
-        // Return the NFT information
+        // Returns an NFTInfo struct with detailed information
         return NFTInfo({
+            // Initializing the NFTInfo fields here using the state variables
+            // ASSIGNMENT #11
             nftPrice: nftPrice,
             artist: artist,
             audioURI: audioURI,
