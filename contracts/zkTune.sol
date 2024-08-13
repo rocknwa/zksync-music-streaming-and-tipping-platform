@@ -93,24 +93,22 @@ contract zkTune is Ownable {
     }
 
     // Function to register a new artist
-    // YOUR_CODE_GOES_HERE
     function registerArtist(string memory _name, string memory _profileURI) external {
         // Check if the artist is already registered
-
-        // Increment current artist ID
-
-        // Assign new artist ID
+        // ASSIGNMENT #1
+        YOUR_CODE_GOES_HERE(bytes(artists[msg.sender].name).length == 0, "Artist already registered");
+        _currentArtistId++; // Increment current artist ID
+        uint256 newArtistId = _currentArtistId; // Assign new artist ID
 
         // Store artist details in the artists mapping
-        
+        artists[msg.sender] = Artist(_name, _profileURI);
         // Store artist details in the artistID mapping
-        
+        artistID[newArtistId] = Artist(_name, _profileURI);
 
-        // Add artist address to the array
+        artistAddresses.push(msg.sender); // Add artist address to the array
+        totalArtists++; // Increment total artists
 
-        // Increment total artists
-
-        // Emit ArtistRegistered event
+        emit ArtistRegistered(msg.sender, _name); // Emit ArtistRegistered event
     }
 
     // Function to register a new user
@@ -119,58 +117,61 @@ contract zkTune is Ownable {
         require(bytes(users[msg.sender].name).length == 0, "User already registered");
         // Store user details in the users mapping
         users[msg.sender] = User(_name, _profileURI);
-        totalUsers++; // Increment total users
+
+        // ASSIGNMENT #2
+        YOUR_CODE_GOES_HERE // Increment total users
 
         emit UserRegistered(msg.sender, _name); // Emit UserRegistered event
     }
 
     // Function to add a new song
-    // YOUR_CODE_GOES_HERE
     function addSong(string memory _title, string memory _audioURI, string memory _coverURI, uint256 _nftPrice) external onlyRegisteredArtist {
-        // Increment current song ID
-        // Assign new song ID
+        _currentSongId++; // Increment current song ID
+        uint256 newSongId = _currentSongId; // Assign new song ID
 
         // Deploy a new SongNFT contract
+        SongNFT songNFT = new SongNFT(_title, "ZKT", _nftPrice, _audioURI, msg.sender, _coverURI);
 
         // Store song details in the songs mapping
-        
-        // Add song ID to the array
+        // ASSIGNMENT #3
+        songs[newSongId] = Song(YOUR_CODE_GOES_HERE, msg.sender, _title, _audioURI, _coverURI, 0, address(songNFT));
+        songIds.push(newSongId); // Add song ID to the array
 
-        // Add song ID to the artist's songs
-        
-        // Increment total songs
+        artistSongs[msg.sender].push(newSongId); // Add song ID to the artist's songs
+        totalSongs++; // Increment total songs
 
-        // Emit SongAdded event
+        emit SongAdded(newSongId, msg.sender, _title); // Emit SongAdded event
     }
 
     // Function to stream a song
-    // YOUR_CODE_GOES_HERE
     function streamSong(uint256 _songId) external payable songExists(_songId) returns (string memory) {
-        // Retrieve the song from the mapping
-        
-        // Retrieve the SongNFT contract
+        Song storage song = songs[_songId]; // Retrieve the song from the mapping
+        SongNFT songNFT = SongNFT(song.songNFTAddress); // Retrieve the SongNFT contract
 
-        
-        // If the user already owns the NFT, return the audio URI
-            
-        // } else {
+        if (userHasNFT[_songId][msg.sender]) {
+            // If the user already owns the NFT, return the audio URI
+            return song.audioURI;
+        } else {
             // Mint a new NFT for the user
-            
-            // Mark that the user owns the NFT
+            songNFT.mintNFT{value: msg.value}(msg.sender);
+            userHasNFT[_songId][msg.sender] = true; // Mark that the user owns the NFT
 
-            // Increment stream count
-            // Add song ID to the user's streams
+            song.streamCount++; // Increment stream count
+            userStreams[msg.sender].push(_songId); // Add song ID to the user's streams
 
-            // Emit SongStreamed event
+            emit SongStreamed(_songId, msg.sender); // Emit SongStreamed event
 
             // Return the audio URI
-            
+            // ASSIGNMENT #4
+            return YOUR_CODE_GOES_HERE;
         }
+    }
 
     // Function to get all songs
     function getAllSongs() external view returns (Song[] memory) {
         Song[] memory allSongs = new Song[](songIds.length); // Create an array of Song structs
-        for (uint256 i = 0; i < songIds.length; i++) {
+        // ASSIGNMENT #5
+        for (uint256 i = 0; i < YOUR_CODE_GOES_HERE; i++) {
             allSongs[i] = songs[songIds[i]]; // Populate the array with songs
         }
         return allSongs; // Return the array
@@ -191,7 +192,8 @@ contract zkTune is Ownable {
         Song[] memory artistSongsArray = new Song[](artistSongIds.length); // Create an array of Song structs
 
         for (uint256 i = 0; i < artistSongIds.length; i++) {
-            artistSongsArray[i] = songs[artistSongIds[i]]; // Populate the array with the artist's songs
+            // ASSIGNMENT #6
+            artistSongsArray[i] = YOUR_CODE_GOES_HERE; // Populate the array with the artist's songs
         }
 
         return artistSongsArray; // Return the array
@@ -200,7 +202,8 @@ contract zkTune is Ownable {
     // Function to get songs streamed by a specific user
     function getSongsStreamedByUser(address _user) external view returns (Song[] memory) {
         uint256[] memory userStreamedSongIds = userStreams[_user]; // Get the user's streamed song IDs
-        Song[] memory userStreamedSongs = new Song[](userStreamedSongIds.length); // Create an array of Song structs
+        // ASSIGNMENT #7
+        Song[] memory YOUR_CODE_GOES_HERE = new Song[](userStreamedSongIds.length); // Create an array of Song structs
 
         for (uint256 i = 0; i < userStreamedSongIds.length; i++) {
             userStreamedSongs[i] = songs[userStreamedSongIds[i]]; // Populate the array with the user's streamed songs
