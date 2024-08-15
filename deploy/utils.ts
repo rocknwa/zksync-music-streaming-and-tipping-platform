@@ -17,7 +17,8 @@ export const getProvider = () => {
   // Initialize zkSync Provider
   const provider = new Provider(rpcUrl);
 
-  return provider;
+  // ASSIGNMENT #1
+  return YOUR_CODE_GOES_HERE;
 }
 
 export const getWallet = (privateKey?: string) => {
@@ -29,7 +30,8 @@ export const getWallet = (privateKey?: string) => {
   const provider = getProvider();
   
   // Initialize zkSync Wallet
-  const wallet = new Wallet(privateKey ?? process.env.WALLET_PRIVATE_KEY!, provider);
+  // ASSIGNMENT #2
+  const wallet = new Wallet(privateKey ?? process.env.YOUR_CODE_GOES_HERE!, provider);
 
   return wallet;
 }
@@ -37,7 +39,11 @@ export const getWallet = (privateKey?: string) => {
 export const verifyEnoughBalance = async (wallet: Wallet, amount: bigint) => {
   // Check if the wallet has enough balance
   const balance = await wallet.getBalance();
-  if (balance < amount) throw `⛔️ Wallet balance is too low! Required ${ethers.formatEther(amount)} ETH, but current ${wallet.address} balance is ${ethers.formatEther(balance)} ETH`;
+
+  // ASSIGNMENT #3
+  if (YOUR_CODE_GOES_HERE < amount) {
+    throw `⛔️ Wallet balance is too low! Required ${ethers.formatEther(amount)} ETH, but current ${wallet.address} balance is ${ethers.formatEther(balance)} ETH`;
+  }
 }
 
 /**
@@ -77,7 +83,8 @@ export const deployContract = async (contractArtifactName: string, constructorAr
 
   log(`\nStarting deployment process of "${contractArtifactName}"...`);
   
-  const wallet = options?.wallet ?? getWallet();
+  // ASSIGNMENT #4
+  const wallet = options?.YOUR_CODE_GOES_HERE ?? getWallet();
   const deployer = new Deployer(hre, wallet);
   const artifact = await deployer.loadArtifact(contractArtifactName).catch((error) => {
     if (error?.message?.includes(`Artifact for contract "${contractArtifactName}" not found.`)) {
@@ -103,7 +110,8 @@ export const deployContract = async (contractArtifactName: string, constructorAr
 
   // Display contract deployment info
   log(`\n"${artifact.contractName}" was successfully deployed:`);
-  log(` - Contract address: ${address}`);
+  // ASSIGNMENT #5
+  log(` - Contract address: ${YOUR_CODE_GOES_HERE}`);
   log(` - Contract source: ${fullContractSource}`);
   log(` - Encoded constructor arguments: ${constructorArgs}\n`);
 
