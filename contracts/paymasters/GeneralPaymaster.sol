@@ -1,92 +1,77 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// Imports interfaces and constants related to the Paymaster functionality from zkSync contracts.
-import {IPaymaster, ExecutionResult, PAYMASTER_VALIDATION_SUCCESS_MAGIC} 
-from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol";
-
-// Imports Paymaster flow interface.
+// Import interfaces and libraries from the zkSync contracts
+import {IPaymaster, ExecutionResult, PAYMASTER_VALIDATION_SUCCESS_MAGIC} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol";
 import {IPaymasterFlow} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymasterFlow.sol";
-
-// Imports transaction helper functions and transaction structure from zkSync contracts.
 import {TransactionHelper, Transaction} from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol";
 
-// Imports various constants used in zkSync.
+// Import constants from the zkSync contracts
 import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
 
-// Imports Ownable contract from OpenZeppelin, which provides basic authorization control functions.
+// Import the Ownable contract from OpenZeppelin to provide basic authorization control
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-// Notice This contract does not include any validations 
-// other than using the paymaster general flow
-
+/// @title GeneralPaymaster Contract
+/// @notice This contract implements a general paymaster for zkSync without any additional validations.
+/// @dev This contract allows paying for transaction fees using the general flow of paymasters.
 contract GeneralPaymaster is IPaymaster, Ownable {
-	
-    // Modifier that restricts access to only the bootloader
+    // Modifier to restrict function access to only the bootloader
     modifier onlyBootloader() {
-		// Ensure the function is called by the bootloader
         require(
-            // ___________ == BOOTLOADER_FORMAL_ADDRESS, // UNCOMMENT_THIS_LINE_AND_FILL_IN_THE_BLANK
+            msg.sender == BOOTLOADER_FORMAL_ADDRESS, // Ensure the caller is the bootloader
             "Only bootloader can call this method"
         );
-        
-        // Continue execution if the condition is met
-        _;
+        _; // Continue execution if called from the bootloader
     }
 
-    // Parameters include two 32-byte values (unused) and a transaction.
+    /// @notice Validates and pays for a paymaster transaction
+    /// @param _transaction The transaction data
+    /// @return magic A magic value indicating success
+    /// @return context Additional context data
     function validateAndPayForPaymasterTransaction(
-        bytes32,
-        bytes32,
-        Transaction calldata _transaction
+        bytes32,  // Placeholder for a future parameter
+        bytes32,  // Placeholder for a future parameter
+        Transaction calldata _transaction  // The transaction to be paid for
     )
         external
         payable
         onlyBootloader
         returns (bytes4 magic, bytes memory context)
     {
-        // By default we consider the transaction as accepted
-        
-        // Set the magic value to indicate a successful validation
-        magic = PAYMASTER_VALIDATION_SUCCESS_MAGIC;
-        
-        // Ensure the paymaster input is at least 4 bytes long.
+        magic = PAYMASTER_VALIDATION_SUCCESS_MAGIC; // By default, consider the transaction as accepted
         require(
-            _transaction.paymasterInput.length >= ______, // FILL_IN_THE_BLANK
+            _transaction.paymasterInput.length >= 4, // Ensure the paymaster input is at least 4 bytes long
             "The standard paymaster input must be at least 4 bytes long"
         );
-        
-		// Extract the first 4 bytes from the paymaster input.
-        bytes4 paymasterInputSelector = bytes4(
-            _transaction.paymasterInput[0:4]
-        );
-        
-        // Check if the selector matches the general paymaster flow.
-        if (paymasterInputSelector == IPaymasterFlow.general.selector) {
-        
-            // Note, that while the minimal amount of ETH needed is tx.gasPrice * tx.gasLimit,
-            // Neither the paymaster nor the account is allowed to access this context variable.
-            
-            // Calculate the required ETH for the transaction.
-            uint256 requiredETH = _transaction.gasLimit * _transaction.maxFeePerGas;
 
-            // The bootloader never returns any data, so it can safely be ignored here.
+        bytes4 paymasterInputSelector = bytes4(
+            _transaction.paymasterInput[0:4] // Extract the first 4 bytes of the paymaster input
+        );
+        if (paymasterInputSelector == IPaymasterFlow.general.selector) {
+            // Calculate the required ETH to pay for the transaction gas
+            uint256 requiredETH = _transaction.gasLimit *
+                _transaction.maxFeePerGas;
+
             // Transfer the required ETH to the bootloader
             (bool success, ) = payable(BOOTLOADER_FORMAL_ADDRESS).call{
                 value: requiredETH
             }("");
-            // Ensure the transfer was successful.
             require(
-                success,
+                success, // Ensure the transfer was successful
                 "Failed to transfer tx fee to the Bootloader. Paymaster balance might not be enough."
             );
-        // Reverts if the paymaster flow is unsupported.
         } else {
-            revert("Unsupported paymaster flow in paymasterParams.");
+            revert("Unsupported paymaster flow in paymasterParams."); // Revert if the paymaster flow is unsupported
         }
     }
 
-    // Parameters include context, transaction, two 32-byte values (unused), transaction result, and max refunded gas	
+    // Parameters include context, transaction, two 32-byte values (unused), transaction result, and max refunded gas
+    /// @notice Handles post-transaction actions
+    /// @param _context Additional context data
+    /// @param _transaction The transaction data
+    /// @param _txResult The execution result of the transaction
+    /// @param _maxRefundedGas The maximum gas to be refunded	
     function postTransaction(
         bytes calldata _context,
         Transaction calldata _transaction,
@@ -102,13 +87,13 @@ contract GeneralPaymaster is IPaymaster, Ownable {
     function withdraw(address payable _to) external onlyOwner {
 		// Get the contract's current balance
         // HINT: address() can help you get the address of the contract
-        uint256 balance = _________________; // FILL_IN_THE_BLANK
+        uint256 balance = address(this).balance;
         
         // Transfer the balance to the specified address
         (bool success, ) = _to.call{value: balance}("");
         
         // Ensure the transfer was successful
-        require(__________, "Failed to withdraw funds from paymaster."); // FILL_IN_THE_BLANK
+        require(success, "Failed to withdraw funds from paymaster."); 
     }
 
     receive() external payable {}
