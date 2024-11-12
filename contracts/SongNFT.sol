@@ -48,7 +48,7 @@ contract SongNFT is ERC721URIStorage, Ownable {
 
     // The modifier restricts function access to users who own at least one NFT
     modifier onlyMintedUser(address user) {
-        require(user.balanceOf() > 0,"Don't own the NFT"); // ASSIGNMENT #1
+        require(balanceOf(user) > 0,"Don't own the NFT"); // ASSIGNMENT #1
         _;
     }
 
