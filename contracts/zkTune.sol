@@ -192,17 +192,18 @@ contract zkTune is Ownable {
     }
 
     // Function to get songs by a specific artist
+     // Function to get songs by a specific artist
     function getSongsByArtist(address _artist) external view returns (Song[] memory) {
         uint256[] memory artistSongIds = artistSongs[_artist]; // Get the artist's song IDs
         Song[] memory artistSongsArray = new Song[](artistSongIds.length); // Create an array of Song structs
 
         for (uint256 i = 0; i < artistSongIds.length; i++) {
-            // ASSIGNMENT #11
-            artistSongsArray[i] = _artist[artistSongs[i]]; // Populate the array with the artist's songs
+            artistSongsArray[i] = songs[artistSongIds[i]]; // Populate the array with the artist's songs
         }
 
         return artistSongsArray; // Return the array
     }
+
 
     // Function to get songs streamed by a specific user
     function getSongsStreamedByUser(address _user) external view returns (Song[] memory) {
