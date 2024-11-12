@@ -96,7 +96,7 @@ contract zkTune is Ownable {
     function registerArtist(string memory _name, string memory _profileURI) external {
         // Check if the artist is already registered
         // ASSIGNMENT #1
-        YOUR_CODE_GOES_HERE(bytes(artists[msg.sender].name).length == 0, "Artist already registered");
+        require(bytes(artists[msg.sender].name).length == 0, "Artist already registered");
         _currentArtistId++; // Increment current artist ID
         uint256 newArtistId = _currentArtistId; // Assign new artist ID
 
@@ -104,10 +104,10 @@ contract zkTune is Ownable {
         artists[msg.sender] = Artist(_name, _profileURI);
         // Store artist details in the artistID mapping
         // ASSIGNMENT #2
-        artistID[newArtistId] = Artist(YOUR_CODE_GOES_HERE, _profileURI);
+        artistID[newArtistId] = Artist(_name, _profileURI);
 
         // ASSIGNMENT #3
-        artistAddresses.push(YOUR_CODE_GOES_HERE); // Add artist address to the array
+        artistAddresses.push(msg.sender); // Add artist address to the array
         totalArtists++; // Increment total artists
 
         emit ArtistRegistered(msg.sender, _name); // Emit ArtistRegistered event
@@ -121,7 +121,7 @@ contract zkTune is Ownable {
         users[msg.sender] = User(_name, _profileURI);
 
         // ASSIGNMENT #4
-        YOUR_CODE_GOES_HERE // Increment total users
+        totalUsers++; // Increment total users
 
         emit UserRegistered(msg.sender, _name); // Emit UserRegistered event
     }
@@ -136,14 +136,14 @@ contract zkTune is Ownable {
 
         // Store song details in the songs mapping
         // ASSIGNMENT #5
-        songs[newSongId] = Song(YOUR_CODE_GOES_HERE, msg.sender, _title, _audioURI, _coverURI, 0, address(songNFT));
+        songs[newSongId] = Song(newSongId, msg.sender, _title, _audioURI, _coverURI, 0, address(songNFT));
         songIds.push(newSongId); // Add song ID to the array
 
         artistSongs[msg.sender].push(newSongId); // Add song ID to the artist's songs
         totalSongs++; // Increment total songs
 
         // ASSIGNMENT #6
-        emit SongAdded(newSongId, msg.sender, YOUR_CODE_GOES_HERE); // Emit SongAdded event
+        emit SongAdded(newSongId, msg.sender, _title); // Emit SongAdded event
     }
 
     // Function to stream a song
@@ -154,21 +154,21 @@ contract zkTune is Ownable {
         if (userHasNFT[_songId][msg.sender]) {
             // If the user already owns the NFT, return the audio URI
             // ASSIGNMENT #7
-            return song.YOUR_CODE_GOES_HERE;
+            return song.audioURI;
         } else {
             // Mint a new NFT for the user
             songNFT.mintNFT{value: msg.value}(msg.sender);
             userHasNFT[_songId][msg.sender] = true; // Mark that the user owns the NFT
 
             // ASSIGNMENT #8
-            YOUR_CODE_GOES_HERE // Increment stream count
+            song.streamCount++; // Increment stream count
             userStreams[msg.sender].push(_songId); // Add song ID to the user's streams
 
             emit SongStreamed(_songId, msg.sender); // Emit SongStreamed event
 
             // Return the audio URI
             // ASSIGNMENT #9
-            return YOUR_CODE_GOES_HERE;
+            return song.audioURI;
         }
     }
 
@@ -176,7 +176,7 @@ contract zkTune is Ownable {
     function getAllSongs() external view returns (Song[] memory) {
         Song[] memory allSongs = new Song[](songIds.length); // Create an array of Song structs
         // ASSIGNMENT #10
-        for (uint256 i = 0; i < YOUR_CODE_GOES_HERE; i++) {
+        for (uint256 i = 0; i < songIds.length; i++) {
             allSongs[i] = songs[songIds[i]]; // Populate the array with songs
         }
         return allSongs; // Return the array
@@ -198,7 +198,7 @@ contract zkTune is Ownable {
 
         for (uint256 i = 0; i < artistSongIds.length; i++) {
             // ASSIGNMENT #11
-            artistSongsArray[i] = YOUR_CODE_GOES_HERE; // Populate the array with the artist's songs
+            artistSongsArray[i] = _artist[artistSongs[i]]; // Populate the array with the artist's songs
         }
 
         return artistSongsArray; // Return the array
@@ -208,7 +208,7 @@ contract zkTune is Ownable {
     function getSongsStreamedByUser(address _user) external view returns (Song[] memory) {
         uint256[] memory userStreamedSongIds = userStreams[_user]; // Get the user's streamed song IDs
         // ASSIGNMENT #12
-        Song[] memory YOUR_CODE_GOES_HERE = new Song[](userStreamedSongIds.length); // Create an array of Song structs
+        Song[] memory userStreamedSongs = new Song[](userStreamedSongIds.length); // Create an array of Song structs
 
         for (uint256 i = 0; i < userStreamedSongIds.length; i++) {
             userStreamedSongs[i] = songs[userStreamedSongIds[i]]; // Populate the array with the user's streamed songs
